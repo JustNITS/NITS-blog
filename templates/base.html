@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NITS Blog{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            line-height: 1.6;
+            padding-top: 56px;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Top Header Styles */
+        .top-header {
+            width: 100%;
+            background: #23272e;
+            color: #fff;
+            font-size: 1.1rem;
+            padding: 16px 0 16px 0;
+            text-align: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1200;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 200px;
+            background-color: #2d2d2d;
+            padding: 20px;
+            position: fixed;
+            height: calc(100vh - 56px);
+            overflow-y: auto;
+            top: 56px;
+        }
+
+        .sidebar h1 {
+            color: #ffffff;
+            margin-bottom: 30px;
+            font-size: 24px;
+            text-align: center;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-menu li {
+            margin-bottom: 15px;
+        }
+
+        .nav-menu a {
+            color: #ffffff;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background-color: #404040;
+        }
+
+        .nav-menu a.active {
+            font-weight: bold;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 200px;
+            padding: 20px;
+            flex: 1;
+            margin-top: 56px;
+        }
+
+        .content-section {
+            margin-bottom: 40px;
+        }
+
+        .content-section h2 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #404040;
+        }
+
+        .post-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .post-card {
+            background-color: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+
+        .post-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .post-card h3 {
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .post-content {
+            color: #cccccc;
+            margin-bottom: 15px;
+            position: relative;
+            max-height: 100px;
+            overflow: hidden;
+        }
+
+        .post-content::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(transparent, #2d2d2d);
+        }
+
+        .read-more {
+            color: #4a9eff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .read-more:hover {
+            text-decoration: underline;
+        }
+
+        /* Vote Section Styles */
+        .vote-container {
+            background-color: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .vote-options {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .vote-option {
+            flex: 1;
+            margin: 0 10px;
+            padding: 20px;
+            background-color: #404040;
+            border-radius: 8px;
+        }
+
+        .vote-bar {
+            height: 20px;
+            background-color: #404040;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .vote-progress {
+            height: 100%;
+            width: 50%;
+            background-color: #4a9eff;
+            border-radius: 10px;
+        }
+
+        /* Additional Common Styles */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4a9eff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #357abd;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            background-color: #2d2d2d;
+            border: 1px solid #404040;
+            border-radius: 5px;
+            color: #ffffff;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4a9eff;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: fixed;
+                left: -220px;
+                top: 56px;
+                width: 200px;
+                height: calc(100vh - 56px);
+                z-index: 1000;
+                transition: left 0.3s;
+                box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+            }
+            .sidebar.open {
+                left: 0;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 16px;
+                margin-top: 56px;
+            }
+            .hamburger {
+                display: block;
+                position: fixed;
+                top: 12px;
+                left: 20px;
+                z-index: 1300;
+                background: none;
+                border: none;
+                color: #fff;
+                font-size: 2rem;
+                cursor: pointer;
+            }
+        }
+        @media (min-width: 769px) {
+            .hamburger {
+                display: none;
+            }
+            .sidebar {
+                top: 56px;
+                height: calc(100vh - 56px);
+            }
+            .main-content {
+                margin-left: 200px;
+                margin-top: 56px;
+                padding: 20px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <button class="hamburger" id="sidebarToggle" aria-label="Open sidebar">
+        <i class="fas fa-bars"></i>
+    </button>
+    <div class="container">
+        <div class="sidebar" id="sidebar">
+            <h1>NITS Blog</h1>
+            <ul class="nav-menu">
+                <li><a href="/home" {% if request.path == '/home' %}class="active"{% endif %}>Home</a></li>
+                <li><a href="/make-post" {% if request.path == '/make-post' %}class="active"{% endif %}>Make Post</a></li>
+                <li><a href="/notice-board" {% if request.path == '/notice-board' %}class="active"{% endif %}>Notice Board</a></li>
+                <li><a href="/feature-posts" {% if request.path == '/feature-posts' %}class="active"{% endif %}>Feature Posts</a></li>
+                <li><a href="/recent-posts" {% if request.path == '/recent-posts' %}class="active"{% endif %}>Recent Posts</a></li>
+                <li><a href="/top-posts" {% if request.path == '/Top-posts' %}class="active"{% endif %}>Top Posts</a></li>
+                <li><a href="/confessions" {% if request.path == '/confessions' %}class="active"{% endif %}>Confessions</a></li>
+                <li><a href="/buy-sell" {% if request.path == '/buy-sell' %}class="active"{% endif %}>Buy and Sell</a></li>
+                <li><a href="/admin/login" {% if request.path == '/admin/login' %}class="active"{% endif %}>Admin</a></li>
+            </ul>
+            <div style="margin-top: 24px; color: #cccccc; font-size: 0.95rem; text-align: center;">
+                Share your thought freely openly to everyone on
+                <a href="https://nitsblog.duckdns.org/" style="color: #4a9eff; text-decoration: underline;" target="_blank">https://nitsblog.duckdns.org/</a>
+            </div>
+        </div>
+
+        <div class="main-content">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+    <script>
+        // Sidebar toggle for mobile
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('sidebarToggle');
+        toggleBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+        });
+        // Optional: close sidebar when clicking outside (mobile)
+        document.addEventListener('click', function(e) {
+            if(window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

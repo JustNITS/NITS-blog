@@ -1,0 +1,44 @@
+{
+    "random_names": [
+        "Cat", "Dog", "Parrot", "Lion", "Tiger", "Elephant", "Fox", "Wolf", "Bear", "Zebra",
+        "Giraffe", "Panda", "Koala", "Monkey", "Rhino", "Leopard", "Cheetah", "Swan", "Peacock", "Eagle",
+        "Falcon", "Rabbit", "Deer", "Otter", "Dolphin", "Shark", "Whale", "Penguin", "Owl", "Buffalo",
+        "Moose", "Hamster", "Lemur", "Badger", "Hawk", "Cobra", "Jaguar", "Toad", "Bee", "Antelope",
+        "Frog", "Crab", "Lizard", "Chinchilla", "Raccoon", "Mole", "Sloth", "Camel", "Goat", "Donkey"
+    ],
+
+    "departments": {
+        "ComputerScience": {
+            "faculty_names": [
+                "Dr. Pinki Roy",
+                "Dr. Samir Kumar Borgohain",
+                "Dr. Saroj Kr. Biswas",
+                "Dr. Ujwala Baruah",
+                "Dr. Suganya Devi K",
+                "Dr. Partha Pakray",
+                "Dr. Arup Bhattacharjee",
+                "Mr. Prabhakar Sharma Neog",
+                "Mr. Biswanath Dey",
+                "Dr. Pantha Kanti Nath",
+                "Dr. Dalton Meitei Thounaojam",
+                "Dr. Badal Soni",
+                "Dr. Ripon Patgiri",
+                "Mr. Umakanta Majhi",
+                "Dr. Shyamosree Pal",
+                "Dr. Shyamapada Mukherjee",
+                "Dr. Laiphrakpam Dolendro Singh",
+                "Dr. Malaya Dutta Borah",
+                "Dr. Anish Kumar Saha",
+                "Dr. Thoudam Doren Singh",
+                "Dr. Anupam Biswas",
+                "Dr. Naresh Babu Muppalaneni",
+                "Dr. Parikshit Saikia",
+                "Dr. Ramanujam E",
+                "Dr. Chukhu Chunka",
+                "Dr. Debbrota Paul Chowdhury",
+                "Dr. Aparajita Dutta"
+            ],
+            "courses": ["CS101", "CS102", "CS103"]
+        }
+    }
+}

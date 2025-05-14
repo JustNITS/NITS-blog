@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Edit Post - NITS Blog{% endblock %}
+{% block content %}
+<div class="post-form">
+    <h2>Edit Post</h2>
+    <form id="editPostForm" method="POST">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" value="{{ post.title }}" required>
+        </div>
+        <div class="form-group">
+            <label for="author_name">Author Name (Optional)</label>
+            <input type="text" id="author_name" name="author_name" value="{{ post.author_name }}">
+        </div>
+        <div class="form-group">
+            <label for="category">Category</label>
+            <input type="text" id="category" name="category" value="{{ post.category }}" required>
+        </div>
+        <div class="form-group">
+            <label>Sections</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                {% for section in sections %}
+                    <label style="display: flex; align-items: center; gap: 4px;">
+                        <input type="checkbox" name="sections" value="{{ section.id }}"
+                            {% if section in post.sections %}checked{% endif %}>
+                        {{ section.name|replace('-', ' ')|title }}
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="content">Content</label>
+            <textarea id="content" name="content" rows="10">{{ post.content }}</textarea>
+        </div>
+        <button type="submit" class="btn">Save Changes</button>
+        <a href="{{ url_for('admin.moderation') }}" class="btn">Cancel</a>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='tinymce_7.8.0/tinymce/js/tinymce/tinymce.min.js') }}" referrerpolicy="origin"></script>
+<script>
+    tinymce.init({
+        selector: '#content',
+        plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount media',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+        height: 400,
+        skin: 'oxide-dark',
+        content_css: 'dark',
+        images_upload_url: '/upload-file',
+        automatic_uploads: true,
+        file_picker_types: 'image media',
+        images_reuse_filename: true,
+        file_picker_callback: function (callback, value, meta) {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', meta.filetype === 'image' ? 'image/*' : 'video/*');
+            input.onchange = function () {
+                const file = this.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+
+                fetch('/upload-file', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.location) {
+                        callback(data.location, { title: file.name });
+                    } else {
+                        alert('Failed to upload file.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while uploading the file.');
+                });
+            };
+            input.click();
+        }
+    });
+
+    document.getElementById('editPostForm').addEventListener('submit', function(e) {
+        // Ensure TinyMCE content is synced before submit
+        tinymce.triggerSave();
+    });
+</script>
+{% endblock %}

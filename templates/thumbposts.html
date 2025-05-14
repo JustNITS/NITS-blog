@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - NITS Blog{% endblock %}
+
+{% block extra_css %}
+<style>
+    .posts-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .page-title {
+        color: #ffffff;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #4a9eff;
+    }
+
+    .post-card {
+        background: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid #404040;
+    }
+
+    .post-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        border-color: #4a9eff;
+    }
+
+    .post-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 15px;
+    }
+
+    .post-title {
+        color: #ffffff;
+        font-size: 1.5em;
+        margin: 0;
+        flex-grow: 1;
+    }
+
+    .post-meta {
+        color: #888;
+        font-size: 0.9em;
+        margin-top: 5px;
+    }
+
+    .post-category {
+        display: inline-block;
+        background: #4a9eff;
+        color: #ffffff;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 0.8em;
+        margin-left: 10px;
+    }
+
+    .post-content {
+        color: #cccccc;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .post-footer {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #404040;
+    }
+
+    .post-actions {
+        display: flex;
+        gap: 15px;
+    }
+
+    .action-button {
+        background: none;
+        border: none;
+        color: #888;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: color 0.3s ease;
+    }
+
+    .action-button:hover {
+        color: #4a9eff;
+    }
+
+    .read-more {
+        color: #4a9eff;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .read-more:hover {
+        color: #2d7fd9;
+    }
+
+    /* Post type specific styles */
+    .post-card.confession {
+        border-left: 4px solid #ff4d4d;
+    }
+
+    .post-card.feature {
+        border-left: 4px solid #4dff4d;
+    }
+
+    .post-card.top {
+        border-left: 4px solid #ffd700;
+    }
+
+    .post-card.notice {
+        border-left: 4px solid #4d4dff;
+    }
+
+    .post-card.recent {
+        border-left: 4px solid #4a9eff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="posts-container">
+    <h1 class="page-title">{{ title }}</h1>
+    
+    {% for post in posts %}
+    <article class="post-card {{ post_type }}">
+        <div class="post-header">
+            <div>
+                <h2 class="post-title">{{ post.title }}</h2>
+                <div class="post-meta">
+                    {% if post.author_name %}
+                    <span>By {{ post.author_name }}</span>
+                    {% endif %}
+                    <span class="created-at" data-utc="{{ post.created_at.isoformat() }}">{{ post.created_at }}</span>
+                    <span class="post-category">{{ post.category }}</span>
+                </div>
+            </div>
+            {% if thumbnails[post.id] %}
+                <img src="{{thumbnails[post.id]}}" alt="Thumbnail" style="width: 100px; height: auto; border-radius: 5px; margin-left: 15px;">
+            {% endif %}
+        </div>
+        
+        <div class="post-content">
+            {{ post.content|striptags|escape }}
+        </div>
+        
+        <div class="post-footer">
+            <a href="{{ request.path }}/post-{{post.id}}" class="read-more">Read More</a>
+            <div class="vote-counts" style="margin-left: 20px; display: flex; gap: 10px; align-items: center;">
+                <span class="vote-count upvote-count" style="color: #4CAF50;">&#9650; {{ post.upvotes }}</span>
+                <span class="vote-count downvote-count" style="color: #f44336;">&#9660; {{ post.downvotes }}</span>
+            </div>
+            <div class="comments-count" style="margin-left: 20px; color: #888;">
+                <span>&#128172; {{ post.comments|length }} Comments</span>
+            </div>
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function utcToIST(utcString) {
+    const utcDate = new Date(utcString + (utcString.endsWith('Z') ? '' : 'Z'));
+    const istDate = new Date(utcDate.getTime());
+    const options = {
+        year: 'numeric', month: 'long', day: '2-digit',
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
+    };
+    return istDate.toLocaleString('en-US', options);
+}
+
+// Replace all .created-at elements with IST formatted date
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.created-at[data-utc]').forEach(function(el) {
+        const utc = el.getAttribute('data-utc');
+        if (utc) {
+            el.textContent = utcToIST(utc);
+        }
+    });
+});
+</script>
+{% endblock %}

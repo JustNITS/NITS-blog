@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+
+{% block title %}Make a Post - NITS Blog{% endblock %}
+
+{% block extra_css %}
+<style>
+    .post-form {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .tox-tinymce {
+        border-radius: 5px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .editor-note {
+        color: #888;
+        font-size: 0.9em;
+        margin-bottom: 20px;
+        padding: 10px;
+        background: #2d2d2d;
+        border-radius: 5px;
+    }
+
+    .editor-note i {
+        color: #4a9eff;
+        margin-right: 5px;
+    }
+
+    /* Enhanced Select Styles */
+    .form-group select {
+        width: 100%;
+        padding: 12px;
+        background-color: #2d2d2d;
+        border: 1px solid #404040;
+        border-radius: 5px;
+        color: #ffffff;
+        font-size: 1em;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group select:hover {
+        border-color: #4a9eff;
+    }
+
+    .form-group select:focus {
+        outline: none;
+        border-color: #4a9eff;
+        box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+    }
+
+    .form-group select option {
+        background-color: #2d2d2d;
+        color: #ffffff;
+        padding: 12px;
+    }
+
+    .subcategory-group {
+        display: none;
+        margin-top: 10px;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .subcategory-group.active {
+        display: block;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .placement-group {
+        margin: 20px 0;
+        padding: 15px;
+        background: #232323;
+        border-radius: 5px;
+        color: #fff;
+    }
+
+    .placement-group label {
+        margin-right: 20px;
+        font-weight: 500;
+        cursor: pointer;
+    }
+
+    .placement-group input[type="checkbox"] {
+        margin-right: 7px;
+        accent-color: #4a9eff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="post-form">
+    <h2>Create New Post</h2>
+    <form id="postForm" method="POST" action="/make-post">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+
+        <div class="form-group">
+            <label for="author_name">Author Name (Optional)</label>
+            <input type="text" id="author_name" name="author_name" placeholder="Leave blank to post anonymously">
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category" required onchange="handleCategoryChange(this.value)">
+                <option value="">Select a category</option>
+                <option value="student">To Student</option>
+                <option value="confession">Confession</option>
+                <option value="suggestion">Suggestion</option>
+                <option value="professor">To Professor</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+
+        <div id="professorSubcategory" class="form-group subcategory-group">
+            <label for="professorSelect">Select Professor</label>
+            <select id="professorSelect" name="subcategory">
+                <!-- Professor options will be populated by JS -->
+            </select>
+        </div>
+
+        <div id="studentSubcategory" class="form-group subcategory-group">
+            <label for="studentSelect">Select Batch</label>
+            <select id="studentSelect" name="subcategory">
+                <option value="all">All</option>
+                <option value="2021">Entry Batch 2021</option>
+                <option value="2022">Entry Batch 2022</option>
+                <option value="2023">Entry Batch 2023</option>
+                <option value="2024">Entry Batch 2024</option>
+                <option value="2025">Entry Batch 2025</option>
+                <option value="others">Others</option>
+            </select>
+        </div>
+
+        <div id="confessionSubcategory" class="form-group subcategory-group">
+            <label for="confessionSelect">Select Target</label>
+            <select id="confessionSelect" name="subcategory">
+                <option value="professor">Professor</option>
+                <option value="2021">Entry Batch 2021</option>
+                <option value="2022">Entry Batch 2022</option>
+                <option value="2023">Entry Batch 2023</option>
+                <option value="2024">Entry Batch 2024</option>
+                <option value="2025">Entry Batch 2025</option>
+                <option value="others">Others</option>
+            </select>
+        </div>
+
+        <div class="placement-group">
+            <strong>Suggested Placement:</strong><br>
+            <label>
+                <input type="checkbox" name="sections" value="notice-board">
+                Notice Board
+            </label>
+            <label>
+                <input type="checkbox" name="sections" value="feature-posts">
+                Feature Posts
+            </label>
+            <label>
+                <input type="checkbox" name="sections" value="recent-posts" checked disabled>
+                Recent Posts
+            </label>
+            <label>
+                <input type="checkbox" name="sections" value="top-posts">
+                Top Posts
+            </label>
+            <label>
+                <input type="checkbox" name="sections" value="confessions">
+                Confessions
+            </label>
+            <label>
+                <input type="checkbox" name="sections" value="buy-sell">
+                Buy and Sell
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label for="content">Content</label>
+            <div class="editor-note">
+                <i class="fas fa-info-circle"></i>
+                You can drag and drop images directly into the editor, or use the image button in the toolbar to insert media.
+            </div>
+            <textarea id="content" name="content"></textarea>
+        </div>
+
+        <button type="submit" class="btn">Publish Post</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+
+<script src="{{ url_for('static', filename='tinymce_7.8.0/tinymce/js/tinymce/tinymce.min.js') }}"  referrerpolicy="origin"></script>
+<script>
+    // Professor names from backend config
+    const professorNames = {{ professor_names|tojson }};
+    function populateProfessorSelect() {
+        const select = document.getElementById('professorSelect');
+        select.innerHTML = '';
+        // Always add 'All' and 'Others'
+        select.appendChild(new Option('All', 'all'));
+        professorNames.forEach((name, idx) => {
+            select.appendChild(new Option(name, 'prof' + idx));
+        });
+        select.appendChild(new Option('Others', 'others'));
+    }
+
+    // Initialize TinyMCE
+    tinymce.init({
+        selector: '#content',
+        plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount media',
+        toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+        height: 400,
+        skin: 'oxide-dark',
+        content_css: 'dark',
+        images_upload_url: '/upload-file',
+        automatic_uploads: true,
+        file_picker_types: 'image media',
+        images_reuse_filename: true,
+        file_picker_callback: function (callback, value, meta) {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', meta.filetype === 'image' ? 'image/*' : 'video/*');
+            input.onchange = function () {
+                const file = this.files[0];
+                const formData = new FormData();
+                formData.append('file', file);
+
+                fetch('/upload-file', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.location) {
+                        callback(data.location, { title: file.name });
+                    } else {
+                        alert('Failed to upload file.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while uploading the file.');
+                });
+            };
+            input.click();
+        }
+    });
+
+    // Handle category change
+    function handleCategoryChange(value) {
+        const professorSubcategory = document.getElementById('professorSubcategory');
+        const studentSubcategory = document.getElementById('studentSubcategory');
+        const confessionSubcategory = document.getElementById('confessionSubcategory');
+        
+        // Hide all subcategories first
+        professorSubcategory.classList.remove('active');
+        studentSubcategory.classList.remove('active');
+        confessionSubcategory.classList.remove('active');
+        
+        // Show relevant subcategory
+        if (value === 'professor') {
+            populateProfessorSelect();
+            professorSubcategory.classList.add('active');
+        } else if (value === 'student') {
+            studentSubcategory.classList.add('active');
+        } else if (value === 'confession') {
+            confessionSubcategory.classList.add('active');
+        }
+    }
+
+    // Form submission handling
+    document.getElementById('postForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        formData.set('content', tinymce.get('content').getContent());
+
+        // Remove all subcategory values first
+        formData.delete('subcategory');
+
+        // Get the active subcategory based on the selected category
+        const category = formData.get('category');
+        let activeSubcategory = '';
+        
+        if (category === 'professor') {
+            activeSubcategory = document.getElementById('professorSelect').value;
+        } else if (category === 'student') {
+            activeSubcategory = document.getElementById('studentSelect').value;
+        } else if (category === 'confession') {
+            activeSubcategory = document.getElementById('confessionSelect').value;
+        }
+
+        // Only add subcategory if one is selected
+        if (activeSubcategory) {
+            formData.set('subcategory', activeSubcategory);
+        }
+
+        // Collect checked sections (except disabled 'recent-posts', which is always included)
+        const checkedSections = Array.from(document.querySelectorAll('input[name="sections"]:checked'))
+            .map(cb => cb.value);
+        // Always ensure 'recent-posts' is included
+        if (!checkedSections.includes('recent-posts')) {
+            checkedSections.push('recent-posts');
+        }
+        formData.delete('sections');
+        checkedSections.forEach(val => formData.append('sections', val));
+
+        fetch('/make-post', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Post created successfully!');
+                window.location.href = '/home';
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while creating the post.');
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+
+{% block title %}Moderation - NITS Blog{% endblock %}
+
+{% block extra_css %}
+<style>
+    .moderation-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .moderation-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .moderation-title {
+        color: #ffffff;
+        font-size: 2em;
+        margin: 0;
+    }
+
+    .logout-btn {
+        background: #ff4d4d;
+        color: white;
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        text-decoration: none;
+        font-size: 0.9em;
+        transition: background-color 0.3s ease;
+    }
+
+    .logout-btn:hover {
+        background: #ff3333;
+    }
+
+    .moderation-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .tab {
+        padding: 10px 20px;
+        background: #2d2d2d;
+        border: 1px solid #404040;
+        border-radius: 5px;
+        color: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tab:hover {
+        background: #363636;
+        border-color: #4a9eff;
+    }
+
+    .tab.active {
+        background: #4a9eff;
+        border-color: #4a9eff;
+    }
+
+    .content-section {
+        background: #2d2d2d;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #404040;
+    }
+
+    .content-title {
+        color: #ffffff;
+        font-size: 1.2em;
+        margin: 0;
+    }
+
+    .content-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .content-item {
+        background: #363636;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid #404040;
+    }
+
+    .item-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .item-title {
+        color: #ffffff;
+        font-weight: 500;
+    }
+
+    .item-meta {
+        color: #888;
+        font-size: 0.9em;
+    }
+
+    .item-content {
+        color: #cccccc;
+        margin-bottom: 15px;
+    }
+
+    .item-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .action-btn {
+        padding: 5px 10px;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 0.9em;
+        transition: all 0.3s ease;
+    }
+
+    .approve-btn {
+        background: #4CAF50;
+        color: white;
+    }
+
+    .approve-btn:hover {
+        background: #45a049;
+    }
+
+    .reject-btn {
+        background: #ff4d4d;
+        color: white;
+    }
+
+    .reject-btn:hover {
+        background: #ff3333;
+    }
+
+    .edit-btn {
+        background: #ffc107;
+        color: #222;
+    }
+
+    .edit-btn:hover {
+        background: #e0a800;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="moderation-container">
+    <div class="moderation-header">
+        <h1 class="moderation-title">Moderation Dashboard</h1>
+        <a href="{{ url_for('admin.admin_logout') }}" class="logout-btn">Logout</a>
+    </div>
+
+    <div class="moderation-tabs">
+        <div class="tab active" id="reportedTab" onclick="showTab('reported')">Reported Content</div>
+        <div class="tab" id="pendingTab" onclick="showTab('pending')">Pending Posts</div>
+    </div>
+
+    <div id="reportedContent" class="tab-content">
+        <div class="content-section">
+            <div class="content-header">
+                <h2 class="content-title">Reported Posts</h2>
+            </div>
+            <div class="content-list">
+                {% for report in reports if report.post_id and report.status == 'pending' %}
+                <div class="content-item">
+                    <div class="item-header">
+                        <span class="item-title">{{ report.post.title if report.post else 'Deleted Post' }}</span>
+                        <span class="item-meta">
+                            Reported <span class="created-at" data-utc="{{ report.created_at.isoformat() }}">{{ report.created_at }}</span>
+                        </span>
+                    </div>
+                    <div class="item-content">
+                        Reason: {{ report.reason }}
+                    </div>
+                    <div class="item-actions">
+                        <button class="action-btn approve-btn" onclick="handleReportAction({{ report.id }}, 'approve')">Approve</button>
+                        <button class="action-btn reject-btn" onclick="handleReportAction({{ report.id }}, 'reject')">Remove</button>
+                    </div>
+                </div>
+                {% else %}
+                <div>No reported posts.</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="content-header">
+                <h2 class="content-title">Reported Comments</h2>
+            </div>
+            <div class="content-list">
+                {% for report in reports if report.comment_id and report.status == 'pending' %}
+                <div class="content-item">
+                    <div class="item-header">
+                        <span class="item-title">
+                            Comment by {{ report.comment.author_name if report.comment else 'Deleted User' }}
+                        </span>
+                        <span class="item-meta">
+                            Reported <span class="created-at" data-utc="{{ report.created_at.isoformat() }}">{{ report.created_at }}</span>
+                        </span>
+                    </div>
+                    <div class="item-content">
+                        Reason: {{ report.reason }}
+                    </div>
+                    <div class="item-actions">
+                        <button class="action-btn approve-btn" onclick="handleReportAction({{ report.id }}, 'approve')">Approve</button>
+                        <button class="action-btn reject-btn" onclick="handleReportAction({{ report.id }}, 'reject')">Remove</button>
+                    </div>
+                </div>
+                {% else %}
+                <div>No reported comments.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div id="pendingContent" class="tab-content" style="display:none;">
+        <div class="content-section">
+            <div class="content-header">
+                <h2 class="content-title">Pending Posts</h2>
+            </div>
+            <div class="content-list">
+                {% for post in pending_posts %}
+                <div class="content-item">
+                    <div class="item-header">
+                        <span class="item-title">{{ post.title }}</span>
+                        <span class="item-meta">
+                            By {{ post.author_name or 'Anonymous' }} | <span class="created-at" data-utc="{{ post.created_at.isoformat() }}">{{ post.created_at }}</span>
+                        </span>
+                    </div>
+                    <div class="item-content">
+                        {{ post.content|truncate(200) }}
+                    </div>
+                    <div class="item-actions">
+                        <button class="action-btn edit-btn" onclick="editPost({{ post.id }})">Edit</button>
+                        <button class="action-btn approve-btn" onclick="approvePost({{ post.id }})">Approve</button>
+                        <button class="action-btn reject-btn" onclick="deletePost({{ post.id }})">Delete</button>
+                    </div>
+                </div>
+                {% else %}
+                <div>No pending posts.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function handleReportAction(reportId, action) {
+    fetch('/moderation/report_action', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ report_id: reportId, action: action })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Action failed');
+        }
+    });
+}
+
+// Tab switching logic
+function showTab(tab) {
+    document.getElementById('reportedTab').classList.remove('active');
+    document.getElementById('pendingTab').classList.remove('active');
+    document.getElementById('reportedContent').style.display = 'none';
+    document.getElementById('pendingContent').style.display = 'none';
+    if (tab === 'reported') {
+        document.getElementById('reportedTab').classList.add('active');
+        document.getElementById('reportedContent').style.display = '';
+    } else {
+        document.getElementById('pendingTab').classList.add('active');
+        document.getElementById('pendingContent').style.display = '';
+    }
+}
+
+// Approve pending post
+function approvePost(postId) {
+    fetch('/moderation/approve_post', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ post_id: postId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Action failed');
+        }
+    });
+}
+
+// Delete pending post
+function deletePost(postId) {
+    if (!confirm('Are you sure you want to delete this post?')) return;
+    fetch('/moderation/delete_post', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({ post_id: postId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.error || 'Action failed');
+        }
+    });
+}
+
+// Edit pending post (redirect to edit page)
+function editPost(postId) {
+    window.location.href = '/moderation/edit_post/' + postId;
+}
+
+function utcToIST(utcString) {
+    const utcDate = new Date(utcString + (utcString.endsWith('Z') ? '' : 'Z'));
+    const istDate = new Date(utcDate.getTime());
+    const options = {
+        year: 'numeric', month: 'long', day: '2-digit',
+        hour: '2-digit', minute: '2-digit',
+        hour12: true
+    };
+    return istDate.toLocaleString('en-US', options);
+}
+
+// Replace all .created-at elements with IST formatted date
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.created-at[data-utc]').forEach(function(el) {
+        const utc = el.getAttribute('data-utc');
+        if (utc) {
+            el.textContent = utcToIST(utc);
+        }
+    });
+});
+</script>
+{% endblock %}

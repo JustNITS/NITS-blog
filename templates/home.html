@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Home - NITS Blog{% endblock %}
+
+{% block content %}
+    <div class="content-section">
+        <h2>Notice Board</h2>
+        <div class="post-grid">
+            {% for post in notice_posts %}
+            <div class="post-card notice">
+                <h3>{{ post.title }}</h3>
+                <div class="post-content">
+                    {{ post.content|striptags|truncate(120) }}
+                </div>
+                <a href="/notice-board/post-{{ post.id }}" class="read-more">Read More</a>
+                <div class="post-meta" style="margin-top: 8px;">
+                    <span>By {{ post.author_name }}</span> • 
+                    <span class="created-at" data-utc="{{ post.created_at.isoformat() }}">{{ post.created_at }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>Feature Posts</h2>
+        <div class="post-grid">
+            {% for post in featured_posts %}
+            <div class="post-card feature">
+                <h3>{{ post.title }}</h3>
+                <div class="post-content">
+                    {{ post.content|striptags|truncate(120) }}
+                </div>
+                <a href="/feature-posts/post-{{ post.id }}" class="read-more">Read More</a>
+                <div class="post-meta" style="margin-top: 8px;">
+                    <span>By {{ post.author_name }}</span> • 
+                    <span class="created-at" data-utc="{{ post.created_at.isoformat() }}">{{ post.created_at }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>Recent Posts</h2>
+        <div class="post-grid">
+            {% for post in recent_posts %}
+            <div class="post-card recent">
+                <h3>{{ post.title }}</h3>
+                <div class="post-content">
+                    {{ post.content|striptags|truncate(120) }}
+                </div>
+                <a href="/recent-posts/post-{{ post.id }}" class="read-more">Read More</a>
+                <div class="post-meta" style="margin-top: 8px;">
+                    <span>By {{ post.author_name }}</span> • 
+                    <span class="created-at" data-utc="{{ post.created_at.isoformat() }}">{{ post.created_at }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>Top Posts</h2>
+        <div class="post-grid">
+            {% for post in top_posts %}
+            <div class="post-card top">
+                <h3>{{ post.title }}</h3>
+                <div class="post-content">
+                    {{ post.content|striptags|truncate(120) }}
+                </div>
+                <a href="/top-posts/post-{{ post.id }}" class="read-more">Read More</a>
+                <div class="post-meta" style="margin-top: 8px;">
+                    <span>By {{ post.author_name }}</span> • 
+                    <span class="created-at" data-utc="{{ post.created_at.isoformat() }}">{{ post.created_at }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>Confessions</h2>
+        <div class="post-grid">
+            {% for post in confessions_posts %}
+            <div class="post-card confession">
+                <h3>{{ post.title }}</h3>
+                <div class="post-content">
+                    {{ post.content|striptags|truncate(120) }}
+                </div>
+                <a href="/confessions/post-{{ post.id }}" class="read-more">Read More</a>
+                <div class="post-meta" style="margin-top: 8px;">
+                    <span>By {{ post.author_name }}</span> • 
+                    <span class="created-at" data-utc="{{ post.created_at.isoformat() }}">{{ post.created_at }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="content-section">
+        <h2>Buy and Sell</h2>
+        <div class="post-grid">
+            {% for post in buysell_posts %}
+            <div class="post-card buysell">
+                <h3>{{ post.title }}</h3>
+                <div class="post-content">
+                    {{ post.content|striptags|truncate(120) }}
+                </div>
+                <a href="/buy-sell/post-{{ post.id }}" class="read-more">Read More</a>
+                <div class="post-meta" style="margin-top: 8px;">
+                    <span>By {{ post.author_name }}</span> • 
+                    <span class="created-at" data-utc="{{ post.created_at.isoformat() }}">{{ post.created_at }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function utcToIST(utcString) {
+        const utcDate = new Date(utcString + (utcString.endsWith('Z') ? '' : 'Z'));
+        const istDate = new Date(utcDate.getTime());
+        const options = {
+            year: 'numeric', month: 'long', day: '2-digit',
+            hour: '2-digit', minute: '2-digit',
+            hour12: true
+        };
+        return istDate.toLocaleString('en-US', options);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.created-at[data-utc]').forEach(function(el) {
+            const utc = el.getAttribute('data-utc');
+            if (utc) {
+                el.textContent = utcToIST(utc);
+            }
+        });
+    });
+</script>
+{% endblock %}
